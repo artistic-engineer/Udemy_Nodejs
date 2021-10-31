@@ -1,24 +1,20 @@
-const http = require('http');
-
 const express = require('express');
-
+const bodyParser = require('body-parser');
+const path = require('path');
 const app = express();
 
-app.use('/', (req, res, next) => {
-    console.log('This always runs!');
-    next();
+const adminRoutes = require('./routes/admin');
+const shopRoutes = require('./routes/shop')
+
+app.use(bodyParser.urlencoded({extended: false}));
+// could access static folder
+app.use(express.static(path.join(__dirname, 'public')));
+app.use(shopRoutes);
+app.use('/admin', adminRoutes);
+
+app.use((req, res, next) => {
+    res.status(404).sendFile(path.join(__dirname, 'views', '404.html'));
 });
 
-app.use('/add-product', (req, res, next) => {
-    console.log('In another middleware');
-    res.send('<h1>The "Add Product" Page</h1>');
-});
 
-app.use('/', (req, res, next) => {
-    console.log('In another middleware');
-    res.send('<h1>Hello from Express!</h1>');
-});
-
-const server = http.createServer(app);
-
-server.listen(3000);
+app.listen(3000);
